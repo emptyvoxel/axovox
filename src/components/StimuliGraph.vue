@@ -24,7 +24,7 @@
 
 <script>
 import { Axis } from '@/utils/classes';
-import { scale, invertY } from '@/utils/scalars';
+import { scale, invertY, plotStimuli } from '@/utils/scalars';
 
 export default {
     name: 'StimuliGraph',
@@ -117,7 +117,7 @@ export default {
             for (let x = 0; x < this.axis.x.max; x += dt) {
                 ctx.fillRect(
                     scale(canvas.width, x, this.axis.x),
-                    scale(canvas.height, this.data.stimuli[0].plot(x), this.axis.y),
+                    scale(canvas.height, plotStimuli(x, this.data.stimuli), this.axis.y),
                     2, 2
                 );
             }

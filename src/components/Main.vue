@@ -60,7 +60,8 @@ export default {
             isRunning: false,
             hp: -60, // Holding Potential fixed at -60mV
             stimuli: [
-                new Stimulus(50, 1, 2)
+                new Stimulus(50, 1, 1),
+                new Stimulus(25, 1.5, 1)
             ]
         }
     },

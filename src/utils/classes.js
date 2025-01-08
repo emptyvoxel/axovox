@@ -4,15 +4,6 @@ class Stimulus {
         this.start = start;
         this.duration = duration;
     }
-
-    // NOTE: I don't know if this function should be here or somewhere else
-    plot (x) {
-        if (x >= this.start && x <= (this.start + this.duration)) {
-            return this.amplitude;
-        } else {
-            return 0;
-        }
-    }
 }
 
 class Axis {
