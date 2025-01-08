@@ -104,16 +104,32 @@ export default {
             ctx.fillText(axis.label, 0, 0);
             ctx.restore();
         },
+        // NOTE: Currently only works for the Y-axis, but not sure
+        // if I should bother adding a X-axis case
+        setupMarkers (canvas, axis) {
+            const ctx = canvas.getContext('2d');
+            ctx.setLineDash([5, 5]);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < axis.markers.length; i++) {
+                const marker = scale(canvas.height, axis.markers[i], axis);
+
+                ctx.beginPath();
+                ctx.moveTo(0, marker);
+                ctx.lineTo(canvas.width, marker);
+                ctx.stroke();
+            }
+        },
         plot () {
             const canvas = this.$refs.plot;
             const ctx = canvas.getContext('2d');
             const dt = 0.01;
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            this.setupMarkers(canvas, this.axis.y);
+
             ctx.save();
             invertY(canvas);
 
-            // NOTE: This approach will be useful when summing stimuli together
             for (let x = 0; x < this.axis.x.max; x += dt) {
                 ctx.fillRect(
                     scale(canvas.width, x, this.axis.x),
@@ -133,10 +149,6 @@ export default {
     display: grid;
     grid-template-columns: 92px 1fr;
     margin-bottom: 20px;
-}
-
-.plot {
-    background-color: aquamarine; /* REMOVE THIS */
 }
 
 .y-axis {

@@ -14,8 +14,8 @@
                 :axis="{
                     y: {
                         label: 'Estímulos', type: 'Y',
-                        max: 100, min: 0, step: 100, offset: 15,
-                        render: true
+                        max: 100, min: -100, step: 100, offset: 15,
+                        render: true, markers: [0]
                     },
                     x: {
                         label: 'Tempo (ms)', type: 'X',
