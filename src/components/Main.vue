@@ -2,8 +2,8 @@
     <div class="app">
         <nav>
             <ul>
-                <li>Options</li>
-                <li>Simulations</li>
+                <li>Opções</li>
+                <li>Simulações</li>
             </ul>
         </nav>
 
@@ -13,12 +13,12 @@
                 :height="80"
                 :axis="{
                     y: {
-                        label: 'Estímulos', type: 'y',
+                        label: 'Estímulos', type: 'Y',
                         max: 100, min: 0, step: 100, offset: 15,
                         render: true
                     },
                     x: {
-                        label: 'Tempo (ms)', type: 'x',
+                        label: 'Tempo (ms)', type: 'X',
                         max: 10, min: 0, step: 1, offset: 20,
                         render: true
                     }
@@ -28,8 +28,8 @@
 
         <aside>
             <div class="graph">
-                <button @click="run">Run</button>
-                <button @click="clear">Clear</button>
+                <button @click="run">Iniciar</button>
+                <button @click="clear">Reiniciar</button>
             </div>
 
             <div class="simulation">
@@ -37,7 +37,7 @@
 
                 <div class="stimulus">
                     <label>Amp. = <input type="number" v-model="stimuli[0].amplitude"/></label>
-                    <label>Start = <input type="number" v-model="stimuli[0].start"/></label>
+                    <label>Começo = <input type="number" v-model="stimuli[0].start"/></label>
                     <label>Dur. = <input type="number" v-model="stimuli[0].duration"/></label>
                 </div>
             </div>
@@ -57,7 +57,7 @@ export default {
     data () {
         return {
             isRunning: false,
-            hp: -60, // Resting Potential fixed at -60mV
+            hp: -60, // Holding Potential fixed at -60mV
             stimuli: [
                 new Stimulus(100, 0, .1)
             ]

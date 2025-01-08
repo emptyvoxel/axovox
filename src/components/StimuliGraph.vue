@@ -37,32 +37,32 @@ export default {
         functions: Object // Pre-processing functions
     },
     mounted () {
-        this.setupAxis('y');
+        this.setupAxis(this.axis.y);
 
-        if (this.axis.x.render) this.setupAxis('x');
+        if (this.axis.x.render) this.setupAxis(this.axis.x);
     },
     methods: {
         setupAxis (axis) {
-            const canvas = this.$refs[`axis${axis.toUpperCase()}`];
+            const canvas = this.$refs[`axis${axis.type}`];
             const ctx = canvas.getContext('2d');
 
             // Check which dimension to use for the scale factor
-            const size = axis === 'y' ? canvas.height : canvas.width;
+            const size = axis.type === 'Y' ? canvas.height : canvas.width;
 
-            const range = this.axis[axis].max - this.axis[axis].min;
-            const steps = range / this.axis[axis].step;
-            const stepSize = (size - this.axis[axis].offset) / steps;
+            const range = axis.max - axis.min;
+            const steps = range / axis.step;
+            const stepSize = (size - axis.offset) / steps;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.font = '14px Arial';
             ctx.save();
 
-            if (axis === 'y') {
+            if (axis.type === 'Y') {
                 ctx.textAlign = 'right';
 
                 for (let i = 0; i <= steps; i++) {
-                    const y = size - (this.axis[axis].offset / 2) - i * stepSize;
-                    const label = this.axis[axis].min + i * this.axis[axis].step;
+                    const y = size - (axis.offset / 2) - i * stepSize;
+                    const label = axis.min + i * axis.step;
 
                     ctx.beginPath();
                     ctx.moveTo(90, y);
@@ -79,8 +79,8 @@ export default {
             else {
                 ctx.textAlign = 'center';
                 for (let i = 0; i <= steps; i++) {
-                    const x = size - (this.axis[axis].offset / 2) - i * stepSize;
-                    const value = this.axis[axis].max - i * this.axis[axis].step;
+                    const x = size - (axis.offset / 2) - i * stepSize;
+                    const value = axis.max - i * axis.step;
 
                     ctx.beginPath();
                     ctx.moveTo(x, 0);
@@ -94,7 +94,7 @@ export default {
             }
 
             ctx.textAlign = 'center';
-            ctx.fillText(this.axis[axis].label, 0, 0);
+            ctx.fillText(axis.label, 0, 0);
             ctx.restore();
         },
         plot () {
@@ -116,12 +116,10 @@ export default {
 }
 
 .y-axis {
-    background-color: mediumpurple; /* REMOVE THIS */
     border-right: 2px black solid;
 }
 
 .x-axis {
-    background-color: mediumpurple; /* REMOVE THIS */
     border-top: 2px black solid;
     position: relative;
     left: 92px;

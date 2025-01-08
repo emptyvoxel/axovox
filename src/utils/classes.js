@@ -9,7 +9,7 @@ class Stimulus {
 class Axis {
     constructor (label, type, min, max, step, offset, render=true, markers=null) {
         this.label = label;
-        this.type = type; // X or Y
+        this.type = type.toUpperCase(); // X or Y
         this.min = min;
         this.max = max;
         this.step = step;
