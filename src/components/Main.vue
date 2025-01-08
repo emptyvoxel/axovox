@@ -23,6 +23,7 @@
                         render: true
                     }
                 }"
+                :data="{stimuli: stimuli}"
             />
         </main>
 
@@ -59,7 +60,7 @@ export default {
             isRunning: false,
             hp: -60, // Holding Potential fixed at -60mV
             stimuli: [
-                new Stimulus(100, 0, .1)
+                new Stimulus(50, 1, 2)
             ]
         }
     },

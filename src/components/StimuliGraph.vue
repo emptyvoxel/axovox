@@ -7,8 +7,9 @@
         />
 
         <canvas class="plot"
-            :width="width"
-            :height="height"
+            :width="width - this.axis.x.offset"
+            :height="height - this.axis.y.offset"
+            :style="`padding: ${this.axis.y.offset / 2}px ${this.axis.x.offset / 2}px`"
             ref="plot"
         />
 
@@ -23,6 +24,7 @@
 
 <script>
 import { Axis } from '@/utils/classes';
+import { scale, invertY } from '@/utils/scalars';
 
 export default {
     name: 'StimuliGraph',
@@ -36,10 +38,15 @@ export default {
         data: Object, // Simulation data to be plotted
         functions: Object // Pre-processing functions
     },
+    watch: {
+        data: 'plot'
+    },
     mounted () {
         this.setupAxis(this.axis.y);
 
         if (this.axis.x.render) this.setupAxis(this.axis.x);
+
+        this.plot();
     },
     methods: {
         setupAxis (axis) {
@@ -98,7 +105,24 @@ export default {
             ctx.restore();
         },
         plot () {
-            return;
+            const canvas = this.$refs.plot;
+            const ctx = canvas.getContext('2d');
+            const dt = 0.01;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            invertY(canvas);
+
+            // NOTE: This approach will be useful when summing stimuli together
+            for (let x = 0; x < this.axis.x.max; x += dt) {
+                ctx.fillRect(
+                    scale(canvas.width, x, this.axis.x),
+                    scale(canvas.height, this.data.stimuli[0].plot(x), this.axis.y),
+                    2, 2
+                );
+            }
+
+            ctx.restore();
         }
     }
 }
