@@ -8,6 +8,23 @@
         </nav>
 
         <main>
+            <ActionGraph
+                :width="1135"
+                :height="750"
+                :axis="{
+                    y: {
+                        label: 'Potencial de Membrana (mV)', type: 'Y',
+                        max: 60, min: -80, step: 10, offset: 20,
+                        render: true, markers: [0, hp]
+                    },
+                    x: {
+                        label: 'Tempo (ms)', type: 'X',
+                        max: 10, min: 0, step: 1, offset: 15,
+                        render: false
+                    },
+                }"
+                :data="{ stimuli: stimuli }"
+            />
             <StimuliGraph
                 :width="1135"
                 :height="80"
@@ -49,24 +66,27 @@
 <script>
 import { Stimulus } from '@/utils/classes';
 import StimuliGraph from './StimuliGraph.vue';
+import ActionGraph from './ActionGraph.vue';
 
 export default {
     name: 'MainModel',
     components: {
-        StimuliGraph
+        StimuliGraph, ActionGraph
     },
     data () {
         return {
             isRunning: false,
             hp: -60, // Holding Potential fixed at -60mV
             stimuli: [
-                new Stimulus(50, 1, 1),
-                new Stimulus(25, 1.5, 1)
+                new Stimulus(50, 0, .1),
             ]
         }
     },
     methods: {
-        run () { alert('Running simulation') },
+        run () {
+            this.isRunning = !this.isRunning;
+            console.log(this.isRunning);
+        },
         clear () { alert('Screen cleared') },
     }
 }

@@ -14,7 +14,7 @@
         />
 
         <canvas class="x-axis"
-            :v-if="axis.x.render"
+            v-if="axis.x.render"
             :width="width"
             :height="90"
             ref="axisX"
@@ -23,11 +23,12 @@
 </template>
 
 <script>
+// TODO: create a more general and reusable graph component later
 import { Axis } from '@/utils/classes';
-import { scale, invertY, plotStimuli } from '@/utils/scalars';
+import { scale, invertY } from '@/utils/scalars';
 
 export default {
-    name: 'StimuliGraph',
+    name: 'ActionGraph',
     props: {
         height: Number, // Canvas height
         width: Number, // Canvas width
@@ -125,15 +126,15 @@ export default {
             const ctx = canvas.getContext('2d');
             const dt = 0.01;
 
-            this.setupMarkers(canvas, this.axis.y);
-
             ctx.save();
             invertY(canvas);
+
+            this.setupMarkers(canvas, this.axis.y);
 
             for (let x = 0; x < this.axis.x.max; x += dt) {
                 ctx.fillRect(
                     scale(canvas.width, x, this.axis.x),
-                    scale(canvas.height, plotStimuli(x, this.data.stimuli), this.axis.y),
+                    scale(canvas.height, Math.tan(x) * this.data.stimuli[0].amplitude, this.axis.y),
                     1.5, 1.5
                 );
             }
