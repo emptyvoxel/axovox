@@ -1,7 +1,8 @@
 import { Stimulus } from "./classes";
+import { scale } from "./scalars";
 
 // Physical constants
-const FARADAY = 9.6487;
+const FARADAY = 96.487;
 const RGAS = 8.3143;
 const KELVIN = 273.15;
 export const IONS = {
@@ -74,13 +75,12 @@ export class Simulation {
 
         // Stimuli
         this.stimuli = [
-            new Stimulus(100, 0, .1)
+            new Stimulus(100, 3, .1)
         ];
 
         // Plotting resolution
         this.TIMEBASE = 10;
         this.POINTS = 500;
-        this.TOTALTIME = this.TIMEBASE;
     }
 
     calcLeak () {
@@ -97,10 +97,11 @@ export class Simulation {
         return this.RTzF * Math.log(ion.out / ion.in) / ion.z;
     }
 
-    run () {
+    run (ctx, canvas, stimulus) {
         this.initialize();
 
-        for (let t = 0; t < this.TOTALTIME; t += this.dt) {
+        for (this.t = 0; this.t < this.TOTAL_TIME; this.t += this.dt) {
+        // for (this.t = 0; this.t < .1; this.t += this.dt) {
             if (this.voltageClamp) this.commandV();
 
             if (this.markovModel) {
@@ -114,7 +115,7 @@ export class Simulation {
                 }
             } else {
                 this.rates(); // done
-                // this.gatingCharge();
+                this.gatingCharge();
                 this.gates(); // done
                 this.currents(); // done
             }
@@ -123,17 +124,29 @@ export class Simulation {
                 this.gatingCurrents();
                 this.plotVClamp();
             } else {
-                // this.stimulus();
+                this.stimulus(stimulus);
                 this.voltages(); // done
+                this.plotPoint(ctx, canvas);
+                // this.debug(t);
             }
 
             // this.measurements();
         }
     }
 
+    plotPoint (ctx, canvas) {
+        ctx.fillRect(
+            scale(canvas.width, this.t, {min: 0, max: 10}),
+            scale(canvas.height, this.mV, {min: -80, max: 60}),
+            1.5, 1.5
+        );
+    }
+
     initialize () {
-        this.dt = this.TIMEBASE / this.POINTS;
+        // this.dt = this.TIMEBASE / this.POINTS;
+        this.dt = .01;
         this.ddt = this.dt / 1000;
+        this.TOTAL_TIME = this.TIMEBASE
 
         this.n = 0;
         this.m = 0;
@@ -142,11 +155,14 @@ export class Simulation {
         this.calcLeak();
 
         this.mV = this.mVInit;
-        this.mVold = this.mV;
+        this.mVPrev = this.mV;
+        this.VCommand = this.mVInit;
     }
 
     rates () {
-        // TODO: Check for division by zero
+        const notZero = this.mV + 60 && this.mV + 50 && this.mV + 35 && this.mV + 30;
+        if (!notZero) this.mV -= .0001;
+
         this.an = an(this.mV - this.nOpen);
         this.bn = bn(this.mV - this.nClose);
         this.am = am(this.mV - this.mOpen);
@@ -156,13 +172,30 @@ export class Simulation {
 
         if ((this.n + this.m + this.h) === 0) {
             this.steadyState();
+            this.saveRates();
         }
     }
 
+    saveRates () {
+        if (this.markovModel) return this.saveMarkovRates();
+
+        this.dV = this.VCommand - this.VCommandPrev;
+        this.anPrev = an;
+        this.bnPrev = bn;
+        this.amPrev = am;
+        this.bmPrev = bm;
+        this.ahPrev = ah;
+        this.bhPrev = bh;
+    }
+
+    saveMarkovRates () {
+        return;
+    }
+
     steadyState () {
-        this.n = this.an / (this.an / this.bn);
-        this.m = this.am / (this.am / this.bm);
-        this.h = this.ah / (this.ah / this.bh);
+        this.n = this.an / (this.an + this.bn);
+        this.m = this.am / (this.am + this.bm);
+        this.h = this.ah / (this.ah + this.bh);
     }
 
     gates () {
@@ -176,7 +209,10 @@ export class Simulation {
         this.m += this.dm * this.dt;
         this.h += this.dh * this.dt;
 
-        // TODO: Check gate
+        // Prevents gates from exploding to infinity
+        this.n = Math.max(0, Math.min(this.n, 1));
+        this.m = Math.max(0, Math.min(this.m, 1));
+        this.h = Math.max(0, Math.min(this.h, 1));
     }
 
     currents () {
@@ -192,14 +228,41 @@ export class Simulation {
 
         // Ionic and leak currents (Eqns. 3-5)
         this.iNa = this.gNa * (this.mV - this.vNa);
+
         this.iK = this.gK * (this.mV - this.vK);
         this.iL = this.gKLeak * (this.mV - this.vK)
                 + this.gNaLeak * (this.mV - this.vNa);
-        this.iC = -this.Cm * (this.mVold - this.mV) / this.dt;
-        this.iT = this.iT + this.iK + this.iNa;
+        this.iC = -this.Cm * (this.mVPrev - this.mV) / this.dt;
+        this.iT = this.iL + this.iK + this.iNa;
+        // console.log(`${this.iT} = ${this.iL} + ${this.iK} + ${this.iNa}`);
     }
 
     voltages () {
         this.mV += -this.iT * this.dt;
+    }
+
+    stimulus (stim) {
+        const { amplitude, duration, start } = stim;
+
+        if (this.t > start + this.ddt && this.t < start + duration + this.ddt) {
+            this.iT -= amplitude;
+        }
+    }
+
+    gatingCharge () {
+        if (this.dV === 0) return;
+        this.zan = this.RTzF * Math.log(this.an / this.anPrev) / this.dV;
+        this.zam = this.RTzF * Math.log(this.am / this.amPrev) / this.dV;
+        this.zah = this.RTzF * Math.log(this.ah / this.ahPrev) / this.dV;
+        this.zbn = this.RTzF * Math.log(this.bn / this.bnPrev) / this.dV;
+        this.zbm = this.RTzF * Math.log(this.bm / this.bmPrev) / this.dV;
+        this.zbh = this.RTzF * Math.log(this.bh / this.bhPrev) / this.dV;
+        this.zn = this.zan - this.zbn;
+        this.zm = this.zam - this.zbm;
+        this.zh = this.zah - this.zbh;
+    }
+
+    debug (t) {
+        console.table({t: t, mV: this.mV});
     }
 }
