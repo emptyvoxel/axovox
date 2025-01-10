@@ -160,15 +160,17 @@ export class Simulation {
     }
 
     rates () {
-        const notZero = this.mV + 60 && this.mV + 50 && this.mV + 35 && this.mV + 30;
-        if (!notZero) this.mV -= .0001;
+        let v = -this.mV - 60;
 
-        this.an = an(this.mV - this.nOpen);
-        this.bn = bn(this.mV - this.nClose);
-        this.am = am(this.mV - this.mOpen);
-        this.bm = bm(this.mV - this.mClose);
-        this.ah = ah(this.mV - this.hOpen);
-        this.bh = bh(this.mV - this.hClose);
+        if (v + 25 === 0) v = -25.00001;
+        if (v + 10 === 0) v = -10.00001;
+
+        this.an = an(v);
+        this.bn = bn(v);
+        this.am = am(v);
+        this.bm = bm(v);
+        this.ah = ah(v);
+        this.bh = bh(v);
 
         if ((this.n + this.m + this.h) === 0) {
             this.steadyState();
