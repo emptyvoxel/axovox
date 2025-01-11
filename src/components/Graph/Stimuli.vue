@@ -46,7 +46,7 @@ export default {
 
         if (this.axis.x.render) this.setupAxis(this.axis.x);
 
-        this.plot(); // TODO: remove this and bind the plot function to the run button
+        this.plot();
     },
     methods: {
         setupAxis (axis) {
@@ -104,8 +104,6 @@ export default {
             ctx.fillText(axis.label, 0, 0);
             ctx.restore();
         },
-        // NOTE: Currently only works for the Y-axis, but not sure
-        // if I should bother adding a X-axis case
         setupMarkers (canvas, axis) {
             const ctx = canvas.getContext('2d');
             ctx.setLineDash([5, 5]);

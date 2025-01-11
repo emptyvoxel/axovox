@@ -48,7 +48,7 @@ export default {
 
         if (this.axis.x.render) this.setupAxis(this.axis.x);
 
-        this.plot(); // TODO: remove this and bind the plot function to the run button
+        this.plot();
     },
     methods: {
         setupAxis (axis) {
@@ -106,8 +106,6 @@ export default {
             ctx.fillText(axis.label, 0, 0);
             ctx.restore();
         },
-        // NOTE: Currently only works for the Y-axis, but not sure
-        // if I should bother adding a X-axis case
         setupMarkers (canvas, axis) {
             const ctx = canvas.getContext('2d');
             ctx.setLineDash([5, 5]);
@@ -131,15 +129,15 @@ export default {
 
             this.setupMarkers(canvas, this.axis.y);
 
-            const spike = new Simulation();
-            spike.run(ctx, canvas, this.data.stimuli[0]);
-            // for (let x = 0; x < this.axis.x.max; x += dt) {
-            //     ctx.fillRect(
-            //         scale(canvas.width, x, this.axis.x),
-            //         scale(canvas.height, plotAction(x), this.axis.y),
-            //         1.5, 1.5
-            //     );
-            // }
+            const spike = new Simulation(this.axis.x.max);
+            spike.run(sim => {
+                ctx.fillStyle = "blue";
+                ctx.fillRect(
+                    scale(canvas.width, sim.t, {min: 0, max: sim.TIMEBASE}),
+                    scale(canvas.height, sim.mV, {min: -80, max: 60}),
+                    2, 2
+                );
+            });
 
             ctx.restore();
         }

@@ -19,7 +19,24 @@
                     },
                     x: {
                         label: 'Tempo (ms)', type: 'X',
-                        max: 10, min: 0, step: 1, offset: 15,
+                        max: timebase, min: 0, step: 1, offset: 15,
+                        render: false
+                    },
+                }"
+                :data="{ stimuli: stimuli }"
+            />
+            <ConductanceGraph
+                :width="1135"
+                :height="200"
+                :axis="{
+                    y: {
+                        label: 'Condutância', type: 'Y',
+                        max: 50, min: 0, step: 50, offset: 20,
+                        render: true, markers: [0, hp]
+                    },
+                    x: {
+                        label: 'Tempo (ms)', type: 'X',
+                        max: timebase, min: 0, step: 1, offset: 15,
                         render: false
                     },
                 }"
@@ -36,7 +53,7 @@
                     },
                     x: {
                         label: 'Tempo (ms)', type: 'X',
-                        max: 10, min: 0, step: 1, offset: 20,
+                        max: timebase, min: 0, step: 1, offset: 20,
                         render: true
                     }
                 }"
@@ -65,21 +82,25 @@
 
 <script>
 import { Stimulus } from '@/utils/classes';
-import StimuliGraph from './StimuliGraph.vue';
-import ActionGraph from './ActionGraph.vue';
+import StimuliGraph from './Graph/Stimuli.vue';
+import ActionGraph from './Graph/Potential.vue';
+import ConductanceGraph from './Graph/Conductance.vue';
+import { Simulation } from '@/utils/simulation';
 
 export default {
     name: 'MainModel',
     components: {
-        StimuliGraph, ActionGraph
+        StimuliGraph, ActionGraph, ConductanceGraph
     },
     data () {
         return {
             isRunning: false,
             hp: -60, // Holding Potential fixed at -60mV
             stimuli: [
-                new Stimulus(100, 0, .1),
-            ]
+                new Stimulus(100, 0, .1)
+            ],
+            timebase: 10,
+            simulation: new Simulation(this.timebase)
         }
     },
     methods: {

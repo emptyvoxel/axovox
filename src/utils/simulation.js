@@ -1,5 +1,4 @@
 import { Stimulus } from "./classes";
-import { scale } from "./scalars";
 
 // Physical constants
 const FARADAY = 96.487;
@@ -25,7 +24,7 @@ const bh = v => 1 / (Math.exp((v + 30) / 10) + 1);
 const N_MODELS = 2;
 
 export class Simulation {
-    constructor () {
+    constructor (timebase) {
         // Simulation type
         this.type = 'AP';
         this.voltageClamp = false;
@@ -75,12 +74,14 @@ export class Simulation {
 
         // Stimuli
         this.stimuli = [
-            new Stimulus(100, 3, .1)
+            new Stimulus(64, 0, .1),
         ];
 
         // Plotting resolution
-        this.TIMEBASE = 10;
+        this.TIMEBASE = timebase;
         this.POINTS = 500;
+
+        this.gNaPoints = [];
     }
 
     calcLeak () {
@@ -97,7 +98,7 @@ export class Simulation {
         return this.RTzF * Math.log(ion.out / ion.in) / ion.z;
     }
 
-    run (ctx, canvas, stimulus) {
+    run (plot) {
         this.initialize();
 
         for (this.t = 0; this.t < this.TOTAL_TIME; this.t += this.dt) {
@@ -114,36 +115,24 @@ export class Simulation {
                     this.markovCurrent();
                 }
             } else {
-                this.rates(); // done
+                this.rates();
                 this.gatingCharge();
-                this.gates(); // done
-                this.currents(); // done
+                this.gates();
+                this.currents();
             }
 
             if (this.voltageClamp) {
                 this.gatingCurrents();
                 this.plotVClamp();
             } else {
-                this.stimulus(stimulus);
-                this.voltages(); // done
-                this.plotPoint(ctx, canvas);
-                // this.debug(t);
+                this.stimulus();
+                this.voltages();
+                plot(this);
             }
-
-            // this.measurements();
         }
     }
 
-    plotPoint (ctx, canvas) {
-        ctx.fillRect(
-            scale(canvas.width, this.t, {min: 0, max: 10}),
-            scale(canvas.height, this.mV, {min: -80, max: 60}),
-            1.5, 1.5
-        );
-    }
-
     initialize () {
-        // this.dt = this.TIMEBASE / this.POINTS;
         this.dt = .01;
         this.ddt = this.dt / 1000;
         this.TOTAL_TIME = this.TIMEBASE
@@ -243,11 +232,13 @@ export class Simulation {
         this.mV += -this.iT * this.dt;
     }
 
-    stimulus (stim) {
-        const { amplitude, duration, start } = stim;
+    stimulus () {
+        for (let stim = 0; stim < this.stimuli.length; stim++) {
+            const { amplitude, duration, start } = this.stimuli[stim];
 
-        if (this.t > start + this.ddt && this.t < start + duration + this.ddt) {
-            this.iT -= amplitude;
+            if (this.t > start + this.ddt && this.t < start + duration + this.ddt) {
+                this.iT -= amplitude;
+            }
         }
     }
 
