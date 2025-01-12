@@ -74,14 +74,12 @@ export class Simulation {
 
         // Stimuli
         this.stimuli = [
-            new Stimulus(64, 0, .1),
+            new Stimulus(100, 2.5, .1),
         ];
 
         // Plotting resolution
         this.TIMEBASE = timebase;
         this.POINTS = 500;
-
-        this.gNaPoints = [];
     }
 
     calcLeak () {
@@ -98,11 +96,20 @@ export class Simulation {
         return this.RTzF * Math.log(ion.out / ion.in) / ion.z;
     }
 
-    run (plot) {
+    resetData () {
+        this.data = {
+            gNa: [], gK: [],
+            iNa: [], iK: [], iT: [],
+            mV: [], t: [],
+            n: [], m: [], h: []
+        }
+    }
+
+    run () {
         this.initialize();
+        this.resetData();
 
         for (this.t = 0; this.t < this.TOTAL_TIME; this.t += this.dt) {
-        // for (this.t = 0; this.t < .1; this.t += this.dt) {
             if (this.voltageClamp) this.commandV();
 
             if (this.markovModel) {
@@ -127,9 +134,25 @@ export class Simulation {
             } else {
                 this.stimulus();
                 this.voltages();
-                plot(this);
+                this.plot();
             }
         }
+    }
+
+    plot () {
+        this.data.t.unshift(this.t);
+        this.data.mV.unshift(this.mV);
+
+        this.data.gK.unshift(this.gK);
+        this.data.gNa.unshift(this.gNa);
+
+        this.data.h.unshift(this.h);
+        this.data.n.unshift(this.n);
+        this.data.m.unshift(this.m);
+
+        this.data.iNa.unshift(this.iNa);
+        this.data.iK.unshift(this.iK);
+        this.data.iT.unshift(this.iT);
     }
 
     initialize () {

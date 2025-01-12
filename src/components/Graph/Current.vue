@@ -28,7 +28,7 @@ import { Axis } from '@/utils/classes';
 import { scale, invertY } from '@/utils/scalars';
 
 export default {
-    name: 'ConductanceGraph',
+    name: 'CurrentGraph',
     props: {
         height: Number, // Canvas height
         width: Number, // Canvas width
@@ -129,24 +129,24 @@ export default {
 
             ctx.fillStyle = "blue";
             for (let i = 0; i < this.data.t.length; i++) {
-                const gK = this.data.gK[i];
+                const iK = this.data.iK[i];
                 const t = this.data.t[i];
 
                 ctx.fillRect(
                     scale(canvas.width, t, this.axis.x),
-                    scale(canvas.height, gK, this.axis.y),
+                    scale(canvas.height, iK, this.axis.y),
                     2, 2
                 );
             }
 
             ctx.fillStyle = "blue";
             for (let i = 0; i < this.data.t.length; i++) {
-                const gNa = this.data.gNa[i];
+                const iNa = -this.data.iNa[i];
                 const t = this.data.t[i];
 
                 ctx.fillRect(
                     scale(canvas.width, t, this.axis.x),
-                    scale(canvas.height, gNa, this.axis.y),
+                    scale(canvas.height, iNa, this.axis.y),
                     2, 2
                 );
             }

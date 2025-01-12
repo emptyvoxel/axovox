@@ -10,7 +10,7 @@
         <main>
             <ActionGraph
                 :width="1135"
-                :height="750"
+                :height="700"
                 :axis="{
                     y: {
                         label: 'Potencial de Membrana (mV)', type: 'Y',
@@ -23,7 +23,8 @@
                         render: false
                     },
                 }"
-                :data="{ stimuli: stimuli }"
+                :data="data"
+                :simulation="simulation"
             />
             <ConductanceGraph
                 :width="1135"
@@ -32,7 +33,7 @@
                     y: {
                         label: 'Condutância', type: 'Y',
                         max: 50, min: 0, step: 50, offset: 20,
-                        render: true, markers: [0, hp]
+                        render: true, markers: [0]
                     },
                     x: {
                         label: 'Tempo (ms)', type: 'X',
@@ -40,7 +41,41 @@
                         render: false
                     },
                 }"
-                :data="{ stimuli: stimuli }"
+                :data="data"
+            />
+            <CurrentGraph
+                :width="1135"
+                :height="200"
+                :axis="{
+                    y: {
+                        label: 'Correntes', type: 'Y',
+                        max: 900, min: 0, step: 500, offset: 20,
+                        render: true, markers: [0, 1]
+                    },
+                    x: {
+                        label: 'Tempo (ms)', type: 'X',
+                        max: timebase, min: 0, step: 1, offset: 15,
+                        render: false
+                    },
+                }"
+                :data="data"
+            />
+            <GateGraph
+                :width="1135"
+                :height="200"
+                :axis="{
+                    y: {
+                        label: 'Probabilidades', type: 'Y',
+                        max: 1, min: 0, step: 1, offset: 20,
+                        render: true, markers: [0, 1]
+                    },
+                    x: {
+                        label: 'Tempo (ms)', type: 'X',
+                        max: timebase, min: 0, step: 1, offset: 15,
+                        render: false
+                    },
+                }"
+                :data="data"
             />
             <StimuliGraph
                 :width="1135"
@@ -57,7 +92,7 @@
                         render: true
                     }
                 }"
-                :data="{stimuli: stimuli}"
+                :data="data"
             />
         </main>
 
@@ -85,14 +120,19 @@ import { Stimulus } from '@/utils/classes';
 import StimuliGraph from './Graph/Stimuli.vue';
 import ActionGraph from './Graph/Potential.vue';
 import ConductanceGraph from './Graph/Conductance.vue';
+import CurrentGraph from './Graph/Current.vue';
+import GateGraph from './Graph/Gate.vue';
 import { Simulation } from '@/utils/simulation';
 
 export default {
     name: 'MainModel',
     components: {
-        StimuliGraph, ActionGraph, ConductanceGraph
+        StimuliGraph, ActionGraph, ConductanceGraph, GateGraph, CurrentGraph
     },
     data () {
+        const spike = new Simulation(10);
+        spike.run();
+
         return {
             isRunning: false,
             hp: -60, // Holding Potential fixed at -60mV
@@ -100,13 +140,13 @@ export default {
                 new Stimulus(100, 0, .1)
             ],
             timebase: 10,
-            simulation: new Simulation(this.timebase)
+            simulation: spike,
+            data: spike.data
         }
     },
     methods: {
         run () {
             this.isRunning = !this.isRunning;
-            console.log(this.isRunning);
         },
         clear () { alert('Screen cleared') },
     }

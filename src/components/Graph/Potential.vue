@@ -26,7 +26,6 @@
 // TODO: create a more general and reusable graph component later
 import { Axis } from '@/utils/classes';
 import { scale, invertY } from '@/utils/scalars';
-import { Simulation } from '@/utils/simulation';
 
 export default {
     name: 'ActionGraph',
@@ -38,7 +37,6 @@ export default {
             y: Axis,
         },
         data: Object, // Simulation data to be plotted
-        functions: Object // Pre-processing functions
     },
     watch: {
         data: 'plot',
@@ -129,15 +127,17 @@ export default {
 
             this.setupMarkers(canvas, this.axis.y);
 
-            const spike = new Simulation(this.axis.x.max);
-            spike.run(sim => {
-                ctx.fillStyle = "blue";
+            ctx.fillStyle = "blue";
+            for (let i = 0; i < this.data.t.length; i++) {
+                const mV = this.data.mV[i];
+                const t = this.data.t[i];
+
                 ctx.fillRect(
-                    scale(canvas.width, sim.t, {min: 0, max: sim.TIMEBASE}),
-                    scale(canvas.height, sim.mV, {min: -80, max: 60}),
+                    scale(canvas.width, t, {min: 0, max: 10}),
+                    scale(canvas.height, mV, {min: -80, max: 60}),
                     2, 2
                 );
-            });
+            }
 
             ctx.restore();
         }
