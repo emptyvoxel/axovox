@@ -1,5 +1,3 @@
-import { Stimulus } from "./classes";
-
 // Physical constants
 const FARADAY = 96.487;
 const RGAS = 8.3143;
@@ -20,8 +18,6 @@ const bm = v => 4 * Math.exp(v / 18);
 const ah = v => .07 * Math.exp(v / 20);
 const bh = v => 1 / (Math.exp((v + 30) / 10) + 1);
 
-// TESTING STUFF
-const N_MODELS = 2;
 
 export class Simulation {
     constructor (timebase) {
@@ -100,7 +96,7 @@ export class Simulation {
         this.data = {
             gNa: [], gK: [],
             iNa: [], iK: [], iT: [],
-            mV: [], t: [],
+            mV: [], t: [], stimuli: [],
             n: [], m: [], h: []
         }
     }
@@ -115,7 +111,7 @@ export class Simulation {
             if (this.markovModel) {
                 this.iT = 0;
 
-                for (let k = 1; k < N_MODELS; k++) {
+                for (let k = 1; k < 2; k++) {
                     this.markovRates(k);
                     this.markovGatingCharge();
                     this.markovState(k);
@@ -256,13 +252,18 @@ export class Simulation {
     }
 
     stimulus () {
+        let totalAmplitude = 0;
+
         for (let stim = 0; stim < this.stimuli.length; stim++) {
             const { amplitude, duration, start } = this.stimuli[stim];
 
             if (this.t > start + this.ddt && this.t < start + duration + this.ddt) {
-                this.iT -= amplitude;
+                totalAmplitude += amplitude;
             }
         }
+
+        this.data.stimuli.unshift(totalAmplitude);
+        this.iT -= totalAmplitude;
     }
 
     gatingCharge () {
@@ -280,5 +281,13 @@ export class Simulation {
 
     debug (t) {
         console.table({t: t, mV: this.mV});
+    }
+}
+
+export class Stimulus {
+    constructor (amplitude=0, start=0, duration=0) {
+        this.amplitude = amplitude;
+        this.start = start;
+        this.duration = duration;
     }
 }

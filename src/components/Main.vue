@@ -58,7 +58,7 @@
                         render: false
                     },
                 }"
-                :data="{t: data.t, iNa: -data.iNa, iK: data.iK}"
+                :data="{t: data.t, iNa: data.iNa.map(v => -v), iK: data.iK}"
             />
             <Graph id="gates"
                 :width="1135"
@@ -77,7 +77,7 @@
                 }"
                 :data="{t: data.t, n: data.n, m: data.m, h: data.h}"
             />
-            <StimuliGraph
+            <Graph
                 :width="1135"
                 :height="80"
                 :axis="{
@@ -92,7 +92,7 @@
                         render: true
                     }
                 }"
-                :data="data"
+                :data="{t: data.t, stimuli: data.stimuli}"
             />
         </main>
 
@@ -116,15 +116,13 @@
 </template>
 
 <script>
-import { Stimulus } from '@/utils/classes';
-import StimuliGraph from './Graph/Stimuli.vue';
+import { Simulation, Stimulus } from '@/utils/simulation';
 import Graph from './Graph.vue';
-import { Simulation } from '@/utils/simulation';
 
 export default {
     name: 'MainModel',
     components: {
-        StimuliGraph, Graph
+        Graph
     },
     data () {
         const spike = new Simulation(10);

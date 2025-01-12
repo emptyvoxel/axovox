@@ -23,11 +23,10 @@
 </template>
 
 <script>
-import { Axis } from '@/utils/classes';
-import { scale, invertY, COLORS } from '@/utils/graph';
+import { scale, invertY, COLORS, Axis } from '@/utils/graph';
 
 export default {
-    name: 'ConductanceGraph',
+    name: 'GeneralGraph',
     props: {
         height: Number, // Canvas height
         width: Number, // Canvas width
