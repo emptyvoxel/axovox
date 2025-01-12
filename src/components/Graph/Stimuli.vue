@@ -24,7 +24,7 @@
 
 <script>
 import { Axis } from '@/utils/classes';
-import { scale, invertY, plotStimuli } from '@/utils/scalars';
+import { scale, invertY, plotStimuli } from '@/utils/graph';
 
 export default {
     name: 'StimuliGraph',

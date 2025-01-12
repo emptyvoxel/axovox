@@ -1,15 +1,15 @@
 // Converts a plot coordinate (value) to a canvas coordinate (pixel)
-const scale = (pixel, value, { min, max }) => pixel * (value - min) / (max - min);
+export const scale = (pixel, value, { min, max }) => pixel * (value - min) / (max - min);
 
 // Inverts the y-coordinate origin
-const invertY = (canvas) => {
+export const invertY = (canvas) => {
     const ctx = canvas.getContext('2d');
     ctx.translate(0, canvas.height);
     ctx.scale(1, -1);
 }
 
 // TODO: Find a better place to accommodate this function
-const plotStimuli = (x, stimuli) => {
+export const plotStimuli = (x, stimuli) => {
     let output = 0;
 
     for (let i = 0; i < stimuli.length; i++) {
@@ -25,8 +25,9 @@ const plotStimuli = (x, stimuli) => {
     return output;
 }
 
-export {
-    scale,
-    invertY,
-    plotStimuli
-}
+export const COLORS = {
+    gNa: 'blue', gK: 'blue',
+    iNa: 'blue', iK: 'blue', iT: 'blue',
+    mV: 'blue',
+    n: 'blue', m: 'blue', h: 'blue'
+};

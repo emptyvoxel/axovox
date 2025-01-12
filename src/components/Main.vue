@@ -8,7 +8,7 @@
         </nav>
 
         <main>
-            <ActionGraph
+            <Graph id="potential"
                 :width="1135"
                 :height="700"
                 :axis="{
@@ -23,10 +23,10 @@
                         render: false
                     },
                 }"
-                :data="data"
+                :data="{t: data.t, mV: data.mV}"
                 :simulation="simulation"
             />
-            <ConductanceGraph
+            <Graph id="conductance"
                 :width="1135"
                 :height="200"
                 :axis="{
@@ -41,9 +41,9 @@
                         render: false
                     },
                 }"
-                :data="data"
+                :data="{t: data.t, gNa: data.gNa, gK: data.gK}"
             />
-            <CurrentGraph
+            <Graph id="current"
                 :width="1135"
                 :height="200"
                 :axis="{
@@ -58,9 +58,9 @@
                         render: false
                     },
                 }"
-                :data="data"
+                :data="{t: data.t, iNa: -data.iNa, iK: data.iK}"
             />
-            <GateGraph
+            <Graph id="gates"
                 :width="1135"
                 :height="200"
                 :axis="{
@@ -75,7 +75,7 @@
                         render: false
                     },
                 }"
-                :data="data"
+                :data="{t: data.t, n: data.n, m: data.m, h: data.h}"
             />
             <StimuliGraph
                 :width="1135"
@@ -118,16 +118,13 @@
 <script>
 import { Stimulus } from '@/utils/classes';
 import StimuliGraph from './Graph/Stimuli.vue';
-import ActionGraph from './Graph/Potential.vue';
-import ConductanceGraph from './Graph/Conductance.vue';
-import CurrentGraph from './Graph/Current.vue';
-import GateGraph from './Graph/Gate.vue';
+import Graph from './Graph.vue';
 import { Simulation } from '@/utils/simulation';
 
 export default {
     name: 'MainModel',
     components: {
-        StimuliGraph, ActionGraph, ConductanceGraph, GateGraph, CurrentGraph
+        StimuliGraph, Graph
     },
     data () {
         const spike = new Simulation(10);

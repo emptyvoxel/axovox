@@ -23,9 +23,8 @@
 </template>
 
 <script>
-// TODO: create a more general and reusable graph component later
 import { Axis } from '@/utils/classes';
-import { scale, invertY } from '@/utils/scalars';
+import { scale, invertY, COLORS } from '@/utils/graph';
 
 export default {
     name: 'ConductanceGraph',
@@ -47,6 +46,7 @@ export default {
         if (this.axis.x.render) this.setupAxis(this.axis.x);
 
         this.plot();
+
     },
     methods: {
         setupAxis (axis) {
@@ -127,28 +127,20 @@ export default {
 
             this.setupMarkers(canvas, this.axis.y);
 
-            ctx.fillStyle = "blue";
-            for (let i = 0; i < this.data.t.length; i++) {
-                const gK = this.data.gK[i];
-                const t = this.data.t[i];
+            for (const key in this.data) {
+                if (key === 't') continue;
+                ctx.fillStyle = COLORS[key];
 
-                ctx.fillRect(
-                    scale(canvas.width, t, this.axis.x),
-                    scale(canvas.height, gK, this.axis.y),
-                    2, 2
-                );
-            }
+                for (let i = 0; i < this.data.t.length; i++) {
+                    const x = this.data.t[i];
+                    const y = this.data[key][i];
 
-            ctx.fillStyle = "blue";
-            for (let i = 0; i < this.data.t.length; i++) {
-                const gNa = this.data.gNa[i];
-                const t = this.data.t[i];
-
-                ctx.fillRect(
-                    scale(canvas.width, t, this.axis.x),
-                    scale(canvas.height, gNa, this.axis.y),
-                    2, 2
-                );
+                    ctx.fillRect(
+                        scale(canvas.width, x, this.axis.x),
+                        scale(canvas.height, y, this.axis.y),
+                        2, 2
+                    );
+                }
             }
 
             ctx.restore();
